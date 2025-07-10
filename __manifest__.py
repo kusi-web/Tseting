@@ -5,7 +5,7 @@
     'category': 'Sales',
     'author': 'Kuldeep Singh',
     'website': 'https://softbay.com',
-    'depends': ['base', 'sale', 'account', 'stock', 'mail', 'web_map'],
+    'depends': ['base', 'sale', 'account', 'stock', 'mail'],
     'data': [
         'security/ir.model.access.csv',
         'data/rma_stage_data.xml',
