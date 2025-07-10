@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_custom_rma,access_custom_rma,model_custom_rma,,1,1,1,1
+access_custom_rma_line,access_custom_rma_line,model_custom_rma_line,,1,1,1,1
+custom_rma.access_rma_stage,access_rma_stage,custom_rma.model_rma_stage,base.group_user,1,1,1,1
+custom_rma.access_rma_tag,access_rma_tag,custom_rma.model_rma_tag,base.group_user,1,1,1,1
+access_custom_rma_user,custom.rma.user,model_custom_rma,base.group_user,1,1,1,1
+access_custom_rma_line_user,custom.rma.line.user,model_custom_rma_line,base.group_user,1,1,1,1
+access_rma_stage_user,rma.stage.user,model_rma_stage,base.group_user,1,1,1,1
+access_rma_tag_user,rma.tag.user,model_rma_tag,base.group_user,1,1,1,1
+access_custom_rma_report,access_custom_rma_report,model_custom_rma,base.group_user,1,0,0,0

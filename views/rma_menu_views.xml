@@ -1,0 +1,26 @@
+<odoo>
+    <menuitem id="custom_rma_root" name="RMA"/>
+    
+    <menuitem id="custom_rma_menu" 
+        name="RMA" 
+        parent="custom_rma_root" 
+        action="custom_rma_action"
+        sequence="10"/>
+
+    <menuitem id="custom_rma_configuration_menu" 
+        name="Configuration" 
+        parent="custom_rma_root"
+        sequence="100"/>
+
+    <menuitem id="custom_rma_stage_menu" 
+        name="RMA Stages" 
+        parent="custom_rma_configuration_menu" 
+        action="rma_stage_action"
+        sequence="10"/>
+
+    <menuitem id="custom_rma_tag_menu" 
+        name="RMA Tags" 
+        parent="custom_rma_configuration_menu" 
+        action="rma_tag_action"
+        sequence="20"/>
+</odoo>

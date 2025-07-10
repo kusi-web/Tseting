@@ -1,0 +1,296 @@
+<odoo>
+    <record id="action_report_rma" model="ir.actions.report">
+        <field name="name">Print</field>
+        <field name="model">custom.rma</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">custom_rma.report_rma</field>
+        <field name="report_file">custom_rma.report_rma</field>
+        <field name="binding_model_id" ref="model_custom_rma"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="custom_rma_form" model="ir.ui.view">
+        <field name="name">custom.rma.form</field>
+        <field name="model">custom.rma</field>
+        <field name="arch" type="xml">
+            <form string="RMA">
+                <header>
+                    <button name="action_create_transfer" 
+                            string="CREATE TRANSFER" 
+                            type="object" 
+                            class="btn-primary"
+                            invisible="not stage_id in [%(custom_rma.stage_new)d, %(custom_rma.stage_sent)d]"/>
+                    <button name="action_validate_transfer" 
+                            string="VALIDATE TRANSFER" 
+                            type="object" 
+                            class="btn-primary"
+                            invisible="stage_id != %(custom_rma.stage_awaiting_stock)d"/>
+                    <button name="action_create_credit_note" 
+                            string="CREATE CREDIT NOTE" 
+                            type="object" 
+                            class="btn-primary"
+                            invisible="stage_id != %(custom_rma.stage_awaiting_credit)d"/>
+                    <field name="stage_id" widget="statusbar" options="{'clickable': '1'}"/>
+                </header>
+                <sheet>
+                    <field name="state" widget="state_selection"/>
+                    <widget name="web_ribbon" text="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_button_box" name="button_box"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" required="1" placeholder="Name..."/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="customer_id"/>
+                            <field name="active" invisible="1"/>
+                            <field name="phone" readonly="1"/>
+                            <field name="email" readonly="1"/>
+                            <field name="date"/>
+                            <field name="invoice_id" options="{'no_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="user_id"/>
+                            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                            <field name="company_id"/>
+                            <field name="reason"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="RMA Lines">
+                            <field name="rma_line_ids">
+                                <list editable="bottom">
+                                    <field name="product_id"/>
+                                    <field name="invoiced_qty"/>
+                                    <field name="returned_qty" required="1"/>
+                                    <field name="unit_price"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right" colspan="2">
+                                <field name="total" type="monetary" options="{'currency_field': 'currency_id'}" class="oe_subtotal_footer_separator"/>
+                            </group>
+                        </page>
+                        <page string="Related Stock Moves">
+                        </page>
+                        <page string="Related Stock Moves">
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter reload_on_follower="True"/>
+            </form>
+        </field>
+    </record>
+
+    <record id="custom_rma_list" model="ir.ui.view">
+        <field name="name">custom.rma.list</field>
+        <field name="model">custom.rma</field>
+        <field name="arch" type="xml">
+            <list string="RMA">
+                <field name="name"/>
+                <field name="customer_id"/>
+                <field name="active" invisible="1"/>
+                <field name="invoice_id"/>
+                <field name="user_id"/>
+                <field name="total" widget="monetary"/>
+                <field name="stage_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="custom_rma_kanban" model="ir.ui.view">
+        <field name="name">custom.rma.kanban</field>
+        <field name="model">custom.rma</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="stage_id" records_draggable="1" class="o_kanban_small_column" on_create="quick_create" group_create="false" group_delete="false">
+                <field name="name"/>
+                <field name="customer_id"/>
+                <field name="stage_id" options='{"group_by_tooltip": {"description": "Description"}}'/>
+                <field name="state"/>
+                <field name="total"/>
+                <field name="reason"/>
+                <field name="tag_ids"/>
+                <field name="currency_id"/>
+                <field name="user_id"/>
+                <field name="priority"/>
+                <templates>
+                    <t t-name="menu">
+                        <a t-if="widget.editable" role="menuitem" type="open" class="dropdown-item">Edit</a>
+                        <a t-if="widget.deletable" role="menuitem" type="delete" class="dropdown-item">Delete</a>
+                      </t>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click">
+                            <div class="oe_kanban_card">
+                                <main>
+                                    <div class="d-flex mb-2">
+                                        <field name="priority" widget="boolean_favorite" nolabel="1"/>
+                                        <field name="name" class="h5"/>
+                                    </div>
+                                    <div class="mb-2">
+                                        <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                                    </div>
+                                    <footer class="d-flex align-items-center">
+                                        <field name="total" widget="monetary"/>
+                                        <div class="ms-auto d-flex align-items-center">
+                                            <field name="state" widget="state_selection"/>
+                                            <field name="user_id" widget="many2one_avatar_user"/>
+                                        </div>
+                                    </footer>
+                                </main>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="custom_rma_calendar" model="ir.ui.view">
+        <field name="name">custom.rma.calendar</field>
+        <field name="model">custom.rma</field>
+        <field name="arch" type="xml">
+            <calendar string="RMA Calendar" date_start="create_date" color="state">
+                <field name="name"/>
+                <field name="customer_id"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="custom_rma_pivot" model="ir.ui.view">
+        <field name="name">custom.rma.pivot</field>
+        <field name="model">custom.rma</field>
+        <field name="arch" type="xml">
+            <pivot string="RMA Analysis">
+                <field name="customer_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="total" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="custom_rma_map" model="ir.ui.view">
+        <field name="name">custom.rma.map</field>
+        <field name="model">custom.rma</field>
+        <field name="arch" type="xml">
+            <map>
+                <field name="name" string="RMA"/>
+                <field name="partner_latitude" string="Latitude"/>
+                <field name="partner_longitude" string="Longitude"/>
+            </map>
+        </field>
+    </record>
+
+    <record id="custom_rma_search" model="ir.ui.view">
+        <field name="name">custom.rma.search</field>
+        <field name="model">custom.rma</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="customer_id"/>
+                <field name="user_id"/>
+                <field name="tag_ids"/>
+                <separator/>
+                <filter string="My RMAs" name="my_rmas" domain="[('user_id', '=', uid)]"/>
+                <filter string="High Priority" name="priority" domain="[('priority', '=', True)]"/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Customer" name="customer" context="{'group_by': 'customer_id'}"/>
+                    <filter string="Stage" name="stage" context="{'group_by': 'stage_id'}"/>
+                    <filter string="Assigned to" name="user" context="{'group_by': 'user_id'}"/>
+                    <filter string="Creation Date" name="creation_date" context="{'group_by': 'create_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="custom_rma_action" model="ir.actions.act_window">
+        <field name="name">RMA</field>
+        <field name="res_model">custom.rma</field>
+        <field name="view_mode">kanban,list,form,calendar,map,pivot</field>
+    </record>
+
+    <!-- Stage Views -->
+    <record id="rma_stage_list" model="ir.ui.view">
+        <field name="name">rma.stage.list</field>
+        <field name="model">rma.stage</field>
+        <field name="arch" type="xml">
+            <list string="RMA Stages" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="rma_stage_form" model="ir.ui.view">
+        <field name="name">rma.stage.form</field>
+        <field name="model">rma.stage</field>
+        <field name="arch" type="xml">
+            <form string="RMA Stage">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="template_id"/>
+                            <field name="sms_template_id"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group>
+                            <field name="fold" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tag Views -->
+    <record id="rma_tag_list" model="ir.ui.view">
+        <field name="name">rma.tag.list</field>
+        <field name="model">rma.tag</field>
+        <field name="arch" type="xml">
+            <list string="RMA Tags" editable="bottom">
+                <field name="name"/>
+                <field name="color" widget="color_picker"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="rma_tag_form" model="ir.ui.view">
+        <field name="name">rma.tag.form</field>
+        <field name="model">rma.tag</field>
+        <field name="arch" type="xml">
+            <form string="RMA Tag">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="color" widget="color_picker"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Actions -->
+    <record id="rma_stage_action" model="ir.actions.act_window">
+        <field name="name">RMA Stages</field>
+        <field name="res_model">rma.stage</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first RMA stage
+            </p>
+        </field>
+    </record>
+
+    <record id="rma_tag_action" model="ir.actions.act_window">
+        <field name="name">RMA Tags</field>
+        <field name="res_model">rma.tag</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first RMA tag
+            </p>
+        </field>
+    </record>
+</odoo>
