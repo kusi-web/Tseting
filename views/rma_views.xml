@@ -207,7 +207,7 @@
     <record id="custom_rma_action" model="ir.actions.act_window">
         <field name="name">RMA</field>
         <field name="res_model">custom.rma</field>
-        <field name="view_mode">kanban,list,form,calendar,map,pivot</field>
+        <field name="view_mode">kanban,list,form,calendar,pivot</field>
     </record>
 
     <!-- Stage Views -->
